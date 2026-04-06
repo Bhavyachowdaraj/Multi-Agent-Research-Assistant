@@ -1,17 +1,54 @@
-from __future__ import annotations
-
-from .base import ANY
-from .base import default_namespace
-from .base import NamedSignal
-from .base import Namespace
-from .base import Signal
-from .base import signal
+from .distro import (
+    NORMALIZED_DISTRO_ID,
+    NORMALIZED_LSB_ID,
+    NORMALIZED_OS_ID,
+    LinuxDistribution,
+    __version__,
+    build_number,
+    codename,
+    distro_release_attr,
+    distro_release_info,
+    id,
+    info,
+    like,
+    linux_distribution,
+    lsb_release_attr,
+    lsb_release_info,
+    major_version,
+    minor_version,
+    name,
+    os_release_attr,
+    os_release_info,
+    uname_attr,
+    uname_info,
+    version,
+    version_parts,
+)
 
 __all__ = [
-    "ANY",
-    "default_namespace",
-    "NamedSignal",
-    "Namespace",
-    "Signal",
-    "signal",
+    "NORMALIZED_DISTRO_ID",
+    "NORMALIZED_LSB_ID",
+    "NORMALIZED_OS_ID",
+    "LinuxDistribution",
+    "build_number",
+    "codename",
+    "distro_release_attr",
+    "distro_release_info",
+    "id",
+    "info",
+    "like",
+    "linux_distribution",
+    "lsb_release_attr",
+    "lsb_release_info",
+    "major_version",
+    "minor_version",
+    "name",
+    "os_release_attr",
+    "os_release_info",
+    "uname_attr",
+    "uname_info",
+    "version",
+    "version_parts",
 ]
+
+__version__ = __version__
