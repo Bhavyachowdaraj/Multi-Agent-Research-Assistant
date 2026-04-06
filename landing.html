@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus AI – Research Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090a;--surface:#0f1012;--surface2:#16181c;--border:#ffffff12;
+  --accent:#6c63ff;--accent2:#a78bfa;--text:#f0f0f0;--muted:#888;
+  --green:#10b981;--amber:#f59e0b;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* NOISE OVERLAY */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.5}
+
+/* GLOW ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,#6c63ff22,transparent 70%);top:-200px;left:-100px}
+.orb2{width:400px;height:400px;background:radial-gradient(circle,#a78bfa18,transparent 70%);bottom:0;right:-100px}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);backdrop-filter:blur(20px);background:rgba(8,9,10,.7)}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.4rem;letter-spacing:-.02em;color:var(--text)}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:2rem;align-items:center}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.4rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;text-decoration:none;transition:all .2s;border:none}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{background:var(--surface2);border-color:#ffffff30}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#7c74ff;transform:translateY(-1px)}
+
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem}
+.badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:.35rem 1rem;font-size:.8rem;color:var(--muted);margin-bottom:2rem}
+.badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+h1{font-family:'Syne',sans-serif;font-size:clamp(3rem,8vw,6rem);font-weight:800;line-height:1.0;letter-spacing:-.03em;max-width:900px;margin-bottom:1.5rem}
+h1 .gradient{background:linear-gradient(135deg,var(--accent),var(--accent2),#e879f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.15rem;color:var(--muted);max-width:560px;line-height:1.8;margin-bottom:3rem;font-weight:300}
+.hero-cta{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;margin-bottom:4rem}
+.btn-lg{padding:.9rem 2.2rem;font-size:1rem;border-radius:10px}
+
+.features-row{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem}
+.feat-pill{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.4rem 1rem;font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:.4rem}
+.feat-pill svg{width:14px;height:14px;opacity:.6}
+
+.section{position:relative;z-index:1;padding:5rem 2rem}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.15em;color:var(--accent2);margin-bottom:1rem;font-weight:500}
+h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;letter-spacing:-.02em;margin-bottom:1rem}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:1.75rem;transition:all .3s}
+.card:hover{border-color:#6c63ff44;transform:translateY(-4px);background:var(--surface2)}
+.card-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;font-size:1.3rem}
+.card h3{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:600;margin-bottom:.6rem}
+.card p{color:var(--muted);font-size:.9rem;line-height:1.7}
+
+.pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-top:3rem}
+.plan{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;position:relative}
+.plan.featured{border-color:var(--accent);background:linear-gradient(135deg,#6c63ff0a,#a78bfa0a)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:.7rem;font-weight:600;padding:.25rem .9rem;border-radius:100px;white-space:nowrap;letter-spacing:.05em;text-transform:uppercase}
+.plan-price{font-family:'Syne',sans-serif;font-size:2.5rem;font-weight:800;margin:1rem 0 .25rem}
+.plan-price sup{font-size:1.2rem;font-weight:500;vertical-align:super}
+.plan-period{color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+.plan-features{list-style:none;margin-bottom:2rem}
+.plan-features li{padding:.4rem 0;color:var(--muted);font-size:.9rem;display:flex;align-items:center;gap:.5rem;border-bottom:1px solid var(--border)}
+.plan-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:2.5rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;gap:1rem}
+.footer-logo{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem}
+.footer-logo span{color:var(--accent)}
+footer p{color:var(--muted);font-size:.85rem}
+
+@media(max-width:640px){
+  nav{padding:1rem 1.5rem}
+  .hero{padding:5rem 1.5rem 3rem}
+  .section{padding:3rem 1.5rem}
+  footer{padding:2rem 1.5rem;flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<nav>
+  <div class="logo">Nexus<span>.</span>AI</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Sign in</a>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge"><span class="badge-dot"></span>AI Research Assistant · Powered by Claude</div>
+  <h1>Research at<br>the speed of<br><span class="gradient">thought.</span></h1>
+  <p class="hero-sub">Nexus orchestrates intelligent agents to automate research, summarise documents, and extract insights from any source — PDF, image, audio, or video.</p>
+  <div class="hero-cta">
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Start for free →</a>
+    <a href="{{ url_for('auth.login') }}" class="btn btn-ghost btn-lg">Sign in</a>
+  </div>
+  <div class="features-row">
+    <span class="feat-pill">📄 PDF Analysis</span>
+    <span class="feat-pill">🖼️ Image Vision</span>
+    <span class="feat-pill">🎵 Audio Transcription</span>
+    <span class="feat-pill">🎬 Video Insights</span>
+    <span class="feat-pill">🔬 Multi-Agent Research</span>
+  </div>
+</section>
+
+<section class="section" id="features">
+  <div class="section-inner">
+    <div class="section-label">Capabilities</div>
+    <h2>Everything you need<br>to research faster.</h2>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon" style="background:#6c63ff18">🧠</div>
+        <h3>Multi-Agent Orchestration</h3>
+        <p>LangGraph-powered agents collaborate to collect, analyse, and synthesise information from multiple sources simultaneously.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#10b98118">📄</div>
+        <h3>PDF Intelligence</h3>
+        <p>Upload research papers, reports, or contracts. Nexus extracts key insights, tables, and conclusions instantly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#f59e0b18">🖼️</div>
+        <h3>Visual Analysis</h3>
+        <p>Send screenshots, charts, diagrams, or photos. Claude Vision processes and interprets visual content with precision.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#e879f918">🎵</div>
+        <h3>Audio & Video (Pro)</h3>
+        <p>Upload recordings, podcasts, or video files. Extract transcripts, summaries, and key takeaways automatically.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#06b6d418">💬</div>
+        <h3>Persistent History</h3>
+        <p>Every conversation is saved and searchable. Pick up any thread from your research history at any time.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon" style="background:#8b5cf618">⚡</div>
+        <h3>Streaming Responses</h3>
+        <p>Real-time token streaming delivers answers as they're generated. No waiting, just instant insight.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2>Simple, transparent<br>pricing.</h2>
+    <div class="pricing">
+      <div class="plan">
+        <h3 style="font-family:Syne,sans-serif;font-weight:600">Free</h3>
+        <div class="plan-price"><sup>$</sup>0</div>
+        <p class="plan-period">forever · no credit card</p>
+        <ul class="plan-features">
+          <li>Unlimited text conversations</li>
+          <li>PDF & image uploads</li>
+          <li>Chat history (50 convs)</li>
+          <li>Claude claude-opus-4-5 powered</li>
+        </ul>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-ghost" style="width:100%;justify-content:center">Get started free</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">Most popular</div>
+        <h3 style="font-family:Syne,sans-serif;font-weight:600">Pro</h3>
+        <div class="plan-price"><sup>$</sup>20</div>
+        <p class="plan-period">per month · cancel anytime</p>
+        <ul class="plan-features">
+          <li>Everything in Free</li>
+          <li>Audio file analysis</li>
+          <li>Video file analysis</li>
+          <li>Unlimited history</li>
+          <li>Priority responses</li>
+          <li>Early access to new features</li>
+        </ul>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary" style="width:100%;justify-content:center">Upgrade to Pro →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Nexus<span>.</span>AI</div>
+  <p>Built with LangGraph · MCP · Claude API</p>
+  <p style="color:var(--muted);font-size:.85rem">© 2025 Nexus AI. All rights reserved.</p>
+</footer>
+</body>
+</html>

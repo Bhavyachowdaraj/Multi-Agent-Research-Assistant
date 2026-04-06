@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Upgrade to Pro – Nexus AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08090a;--surface:#0f1012;--surface2:#16181c;--border:#ffffff14;--accent:#6c63ff;--text:#f0f0f0;--muted:#888;--green:#10b981;--amber:#f59e0b}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,#6c63ff14,transparent);pointer-events:none}
+.back-link{position:fixed;top:1.5rem;left:1.5rem;color:var(--muted);text-decoration:none;font-size:.9rem;display:flex;align-items:center;gap:.4rem;transition:color .2s;z-index:10}
+.back-link:hover{color:var(--text)}
+.wrap{position:relative;z-index:1;max-width:920px;width:100%;text-align:center}
+.badge{display:inline-flex;align-items:center;gap:.4rem;background:linear-gradient(135deg,#f59e0b18,#ef444418);border:1px solid #f59e0b28;border-radius:100px;padding:.35rem 1rem;font-size:.8rem;color:var(--amber);margin-bottom:1.5rem}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.03em;margin-bottom:1rem;line-height:1.05}
+.subtitle{color:var(--muted);font-size:1rem;max-width:500px;margin:0 auto 3rem;line-height:1.8}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:3rem}
+.plan{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:2rem;text-align:left;position:relative;overflow:hidden}
+.plan.pro{border-color:var(--accent);}
+.plan-glow{position:absolute;top:-50px;right:-50px;width:200px;height:200px;background:radial-gradient(circle,#6c63ff15,transparent 70%);pointer-events:none}
+.plan-name{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.75rem}
+.plan-price{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;line-height:1;margin-bottom:.25rem}
+.plan-price sup{font-size:1.3rem;font-weight:500;vertical-align:super}
+.plan-billing{color:var(--muted);font-size:.85rem;margin-bottom:1.75rem}
+.features-list{list-style:none;margin-bottom:2rem}
+.features-list li{display:flex;align-items:center;gap:.6rem;padding:.45rem 0;font-size:.9rem;border-bottom:1px solid var(--border);color:var(--muted)}
+.features-list li:last-child{border-bottom:none}
+.features-list li.included{color:var(--text)}
+.features-list li::before{content:'';width:16px;height:16px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem}
+.features-list li.included::before{background:#10b98118;content:'✓';display:flex;align-items:center;justify-content:center;color:var(--green);font-weight:700}
+.features-list li.excluded{opacity:.4}
+.features-list li.excluded::before{background:var(--surface2);content:'—';display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.plan-cta{width:100%;padding:.85rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:500;cursor:pointer;transition:all .2s;border:none;text-align:center;text-decoration:none;display:block}
+.plan-cta.free-cta{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.plan-cta.pro-cta{background:var(--accent);color:#fff}
+.plan-cta.pro-cta:hover{background:#7c74ff;transform:translateY(-2px)}
+.plan-cta:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.guarantee{color:var(--muted);font-size:.8rem;display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.5rem}
+.faq{max-width:600px;margin:2rem auto 0;text-align:left}
+.faq h2{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;text-align:center;margin-bottom:1.5rem}
+.faq-item{border-bottom:1px solid var(--border);padding:1rem 0}
+.faq-q{font-size:.9rem;font-weight:500;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-a{font-size:.875rem;color:var(--muted);line-height:1.7;margin-top:.5rem;display:none}
+.faq-item.open .faq-a{display:block}
+.success-state{display:none;flex-direction:column;align-items:center;gap:1rem;padding:3rem;background:var(--surface);border:1px solid #10b98128;border-radius:18px;text-align:center}
+.success-icon{font-size:3rem}
+.success-state h2{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700}
+</style>
+</head>
+<body>
+<a href="{{ url_for('chat.chat_page') }}" class="back-link">← Back to chat</a>
+
+<div class="wrap">
+  <div class="badge">⚡ Limited time — first month free</div>
+  <h1>Research without<br>limits.</h1>
+  <p class="subtitle">Unlock audio & video analysis, unlimited history, and priority responses with Nexus Pro.</p>
+
+  <div class="plans" id="plansGrid">
+    <div class="plan">
+      <div class="plan-name">Free</div>
+      <div class="plan-price"><sup>$</sup>0</div>
+      <div class="plan-billing">forever · no credit card</div>
+      <ul class="features-list">
+        <li class="included">Unlimited text conversations</li>
+        <li class="included">PDF document analysis</li>
+        <li class="included">Image & vision analysis</li>
+        <li class="included">50 conversations history</li>
+        <li class="included">Claude claude-opus-4-5 powered</li>
+        <li class="excluded">Audio file analysis</li>
+        <li class="excluded">Video file analysis</li>
+        <li class="excluded">Unlimited history</li>
+        <li class="excluded">Priority responses</li>
+      </ul>
+      <a href="{{ url_for('chat.chat_page') }}" class="plan-cta free-cta">Continue with Free</a>
+    </div>
+
+    <div class="plan pro">
+      <div class="plan-glow"></div>
+      <div class="plan-name" style="color:var(--accent)">Pro</div>
+      <div class="plan-price"><sup>$</sup>20</div>
+      <div class="plan-billing">per month · cancel anytime</div>
+      <ul class="features-list">
+        <li class="included">Everything in Free</li>
+        <li class="included">Audio file analysis</li>
+        <li class="included">Video file analysis</li>
+        <li class="included">Unlimited conversation history</li>
+        <li class="included">Priority AI responses</li>
+        <li class="included">Early feature access</li>
+        <li class="included">Export conversations</li>
+        <li class="included">Advanced research agents</li>
+        <li class="included">Email support</li>
+      </ul>
+      {% if current_user.is_pro %}
+        <button class="plan-cta pro-cta" disabled>Already on Pro ✓</button>
+      {% else %}
+        <button class="plan-cta pro-cta" onclick="upgradePro(this)">Upgrade to Pro →</button>
+      {% endif %}
+    </div>
+  </div>
+
+  <p class="guarantee">🔒 Secure checkout · Cancel anytime · 30-day money back</p>
+
+  <!-- SUCCESS STATE -->
+  <div class="success-state" id="successState">
+    <div class="success-icon">🎉</div>
+    <h2>Welcome to Pro!</h2>
+    <p style="color:var(--muted)">You now have access to all Pro features including audio and video analysis.</p>
+    <a href="{{ url_for('chat.chat_page') }}" style="background:var(--accent);color:#fff;border-radius:10px;padding:.75rem 2rem;text-decoration:none;font-weight:500;display:inline-block;margin-top:.5rem">Start researching →</a>
+  </div>
+
+  <div class="faq">
+    <h2>Common questions</h2>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">What file types does Pro support? <span>+</span></div>
+      <div class="faq-a">Pro supports all Free formats (PDF, images) plus audio files (MP3, WAV, M4A) and video files (MP4, WebM). Files up to 50MB are supported.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Can I cancel anytime? <span>+</span></div>
+      <div class="faq-a">Yes, cancel any time from your account settings with one click. You keep Pro access until the end of your billing period.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-q">Is my data secure? <span>+</span></div>
+      <div class="faq-a">All uploads are processed securely and not stored permanently. Conversations are encrypted and only accessible by you.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+async function upgradePro(btn){
+  btn.disabled=true;btn.textContent='Processing...';
+  try{
+    const r=await fetch('/upgrade/confirm',{method:'POST'});
+    const d=await r.json();
+    if(d.success){
+      document.getElementById('plansGrid').style.display='none';
+      document.getElementById('successState').style.display='flex';
+    }else{btn.disabled=false;btn.textContent='Upgrade to Pro →'}
+  }catch(e){btn.disabled=false;btn.textContent='Upgrade to Pro →'}
+}
+</script>
+</body>
+</html>

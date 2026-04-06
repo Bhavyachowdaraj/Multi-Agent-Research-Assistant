@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Nexus AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#08090a;--sidebar:#0c0d0f;--surface:#0f1012;--surface2:#16181c;
+  --border:#ffffff0f;--border2:#ffffff18;--accent:#6c63ff;--accent2:#a78bfa;
+  --text:#f0f0f0;--muted:#666;--muted2:#888;--user-bg:#1a1b2e;
+  --green:#10b981;--red:#ef4444;--amber:#f59e0b;
+  --sb-width:260px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:var(--sb-width);background:var(--sidebar);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:transform .3s}
+.sb-top{padding:1rem;border-bottom:1px solid var(--border)}
+.sb-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--text);margin-bottom:.75rem;padding:.25rem .25rem;display:flex;align-items:center;gap:.3rem}
+.sb-logo span{color:var(--accent)}
+.new-chat-btn{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.65rem 1rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.875rem;cursor:pointer;display:flex;align-items:center;gap:.6rem;transition:all .2s}
+.new-chat-btn:hover{background:#1e2026;border-color:#ffffff28}
+.new-chat-btn svg{flex-shrink:0}
+.sb-section-label{padding:.75rem 1rem .3rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:500}
+.sb-nav{padding:.5rem}
+.sb-nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem .75rem;border-radius:8px;cursor:pointer;font-size:.875rem;color:var(--muted2);transition:all .2s;text-decoration:none;border:none;background:none;width:100%;text-align:left}
+.sb-nav-item:hover{background:var(--surface2);color:var(--text)}
+.sb-nav-item.active{background:var(--surface2);color:var(--text)}
+.sb-history{flex:1;overflow-y:auto;padding:.5rem}
+.sb-history::-webkit-scrollbar{width:3px}
+.sb-history::-webkit-scrollbar-thumb{background:#ffffff18;border-radius:3px}
+.history-item{display:flex;align-items:center;justify-content:space-between;padding:.55rem .75rem;border-radius:8px;cursor:pointer;font-size:.8rem;color:var(--muted2);transition:all .2s;gap:.5rem}
+.history-item:hover{background:var(--surface2);color:var(--text)}
+.history-item.active{background:var(--surface2);color:var(--text)}
+.history-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.history-del{opacity:0;background:none;border:none;color:var(--muted);cursor:pointer;padding:2px;border-radius:4px;transition:all .2s;flex-shrink:0;font-size:14px;line-height:1}
+.history-item:hover .history-del{opacity:1}
+.history-del:hover{color:var(--red)}
+.sb-bottom{padding:1rem;border-top:1px solid var(--border)}
+.user-info{display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:10px;background:var(--surface2)}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:600;flex-shrink:0}
+.user-name{font-size:.85rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-plan{font-size:.72rem;color:var(--muted2);margin-top:1px}
+.pro-badge{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:4px;font-weight:600;margin-left:.3rem}
+.sb-actions{display:flex;gap:.5rem;margin-top:.75rem}
+.sb-action-btn{flex:1;background:none;border:1px solid var(--border2);border-radius:8px;padding:.45rem;color:var(--muted2);font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.3rem;text-decoration:none}
+.sb-action-btn:hover{background:var(--surface2);color:var(--text)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.topbar{padding:.9rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-shrink:0}
+.conv-title{font-size:.9rem;color:var(--muted2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:400px}
+.model-badge{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:.25rem .75rem;font-size:.75rem;color:var(--muted2)}
+
+/* MESSAGES */
+.messages{flex:1;overflow-y:auto;padding:1.5rem;scroll-behavior:smooth}
+.messages::-webkit-scrollbar{width:4px}
+.messages::-webkit-scrollbar-thumb{background:#ffffff14;border-radius:4px}
+.msg-wrap{display:flex;gap:1rem;margin-bottom:1.5rem;max-width:800px;margin-left:auto;margin-right:auto;width:100%}
+.msg-wrap.user{flex-direction:row-reverse}
+.avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;margin-top:2px}
+.avatar.ai{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.avatar.user{background:var(--surface2);border:1px solid var(--border2);color:var(--muted2)}
+.msg-content{flex:1;min-width:0}
+.msg-name{font-size:.75rem;color:var(--muted);margin-bottom:.4rem;font-weight:500}
+.msg-wrap.user .msg-name{text-align:right}
+.msg-bubble{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;font-size:.92rem;line-height:1.75;word-break:break-word}
+.msg-wrap.user .msg-bubble{background:var(--user-bg);border-color:#6c63ff22}
+.msg-bubble pre{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.9rem 1rem;overflow-x:auto;margin:.75rem 0;font-family:'DM Mono',monospace;font-size:.82rem;line-height:1.6}
+.msg-bubble code{font-family:'DM Mono',monospace;font-size:.85rem;background:var(--surface2);padding:.1rem .35rem;border-radius:4px}
+.msg-bubble pre code{background:none;padding:0;font-size:.82rem}
+.msg-bubble p{margin:.4rem 0}
+.msg-bubble h1,.msg-bubble h2,.msg-bubble h3{font-family:'Syne',sans-serif;font-weight:600;margin:.75rem 0 .4rem}
+.msg-bubble ul,.msg-bubble ol{padding-left:1.5rem;margin:.4rem 0}
+.msg-bubble li{margin:.2rem 0}
+.msg-bubble strong{font-weight:500;color:var(--text)}
+.file-chip{display:inline-flex;align-items:center;gap:.4rem;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.35rem .75rem;font-size:.78rem;color:var(--muted2);margin-bottom:.6rem}
+
+/* TYPING */
+.typing-indicator{display:flex;gap:5px;padding:.3rem 0;align-items:center}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bounce .8s infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+
+/* WELCOME */
+.welcome{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;max-width:700px;margin:0 auto;width:100%}
+.welcome-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;margin-bottom:.5rem}
+.welcome-logo span{color:var(--accent)}
+.welcome-sub{color:var(--muted2);margin-bottom:3rem;text-align:center;font-size:1rem;line-height:1.7}
+.suggestions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;width:100%}
+.suggestion{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem;cursor:pointer;transition:all .2s;text-align:left}
+.suggestion:hover{border-color:var(--accent);background:var(--surface2);transform:translateY(-2px)}
+.suggestion-title{font-size:.875rem;font-weight:500;margin-bottom:.2rem}
+.suggestion-sub{font-size:.78rem;color:var(--muted2)}
+
+/* INPUT */
+.input-area{padding:1rem 1.5rem 1.2rem;border-top:1px solid var(--border);flex-shrink:0}
+.input-inner{max-width:800px;margin:0 auto}
+.file-preview{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem}
+.file-preview-chip{display:flex;align-items:center;gap:.4rem;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:.4rem .75rem;font-size:.8rem;color:var(--muted2)}
+.file-preview-chip .remove{cursor:pointer;color:var(--muted);transition:color .2s;background:none;border:none;font-size:14px;line-height:1}
+.file-preview-chip .remove:hover{color:var(--red)}
+.input-box{display:flex;align-items:flex-end;gap:.75rem;background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:.6rem .6rem .6rem 1rem;transition:border-color .2s}
+.input-box:focus-within{border-color:var(--accent)}
+textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;resize:none;max-height:200px;min-height:26px;line-height:1.6;padding:.2rem 0}
+textarea::placeholder{color:#444}
+.input-actions{display:flex;gap:.3rem;align-items:flex-end;padding-bottom:.15rem}
+.icon-btn{width:34px;height:34px;border-radius:8px;background:none;border:1px solid var(--border);cursor:pointer;color:var(--muted2);display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.icon-btn:hover{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.send-btn{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;cursor:pointer;color:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.send-btn:hover{background:#7c74ff;transform:scale(1.05)}
+.send-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.input-hint{font-size:.73rem;color:var(--muted);margin-top:.6rem;text-align:center}
+.upload-types{display:flex;gap:.5rem;justify-content:center;margin-top:.4rem;flex-wrap:wrap}
+.type-tag{font-size:.7rem;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.15rem .5rem;color:var(--muted)}
+
+/* FILE INPUT HIDDEN */
+#fileInput{display:none}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:1rem}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:2rem;width:100%;max-width:480px}
+.modal h2{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+.modal p{color:var(--muted2);font-size:.9rem;line-height:1.7;margin-bottom:1.5rem}
+.modal-actions{display:flex;gap:.75rem}
+.modal-btn{flex:1;padding:.75rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;transition:all .2s;border:none}
+.modal-btn.cancel{background:var(--surface2);color:var(--muted2);border:1px solid var(--border2)}
+.modal-btn.cancel:hover{color:var(--text)}
+.modal-btn.confirm{background:var(--accent);color:#fff}
+.modal-btn.confirm:hover{background:#7c74ff}
+
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:.75rem 1.25rem;font-size:.85rem;color:var(--text);z-index:2000;animation:slideIn .3s ease;pointer-events:none}
+.toast.hidden{display:none}
+@keyframes slideIn{from{transform:translateX(100px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+@media(max-width:700px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:200;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .suggestions{grid-template-columns:1fr}
+  .main{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <div class="sb-logo">Nexus<span>.</span>AI</div>
+    <button class="new-chat-btn" onclick="newChat()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New conversation
+    </button>
+  </div>
+
+  <div class="sb-nav">
+    <div class="sb-section-label">Tools</div>
+    <a class="sb-nav-item" onclick="showUpgradeModal()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Upgrade to Pro
+    </a>
+    <a class="sb-nav-item" onclick="showHistory()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </a>
+  </div>
+
+  <div class="sb-section-label">Recent chats</div>
+  <div class="sb-history" id="historyList">
+    {% for conv in conversations %}
+    <div class="history-item" onclick="loadConv({{ conv.id }})" id="conv-{{ conv.id }}">
+      <span class="history-title">{{ conv.title }}</span>
+      <button class="history-del" onclick="delConv(event, {{ conv.id }})" title="Delete">✕</button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="sb-bottom">
+    <div class="user-info">
+      <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
+      <div style="flex:1;min-width:0">
+        <div class="user-name">
+          {{ current_user.username }}
+          {% if current_user.is_pro %}<span class="pro-badge">PRO</span>{% endif %}
+        </div>
+        <div class="user-plan">{{ current_user.email }}</div>
+      </div>
+    </div>
+    <div class="sb-actions">
+      <a href="{{ url_for('auth.upgrade') }}" class="sb-action-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Upgrade
+      </a>
+      <a href="{{ url_for('auth.logout') }}" class="sb-action-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign out
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN AREA -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button onclick="toggleSidebar()" style="background:none;border:none;cursor:pointer;color:var(--muted2);display:none" id="menuBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="conv-title" id="convTitle">New conversation</span>
+    </div>
+    <span class="model-badge">Azure GPT-4</span>
+  </div>
+
+  <div class="messages" id="messagesArea">
+    <!-- Welcome screen -->
+    <div class="welcome" id="welcomeScreen">
+      <div class="welcome-logo">Nexus<span>.</span>AI</div>
+      <p class="welcome-sub">Your AI research assistant. Ask anything or attach a PDF, image, audio, or video file to get started.</p>
+      <div class="suggestions">
+        <div class="suggestion" onclick="useSuggestion('Summarise recent advances in large language models')">
+          <div class="suggestion-title">Summarise LLM advances</div>
+          <div class="suggestion-sub">Research the latest developments</div>
+        </div>
+        <div class="suggestion" onclick="useSuggestion('What are the key differences between LangGraph and LangChain?')">
+          <div class="suggestion-title">LangGraph vs LangChain</div>
+          <div class="suggestion-sub">Compare agent frameworks</div>
+        </div>
+        <div class="suggestion" onclick="useSuggestion('Help me write a research proposal on multi-agent AI systems')">
+          <div class="suggestion-title">Write a research proposal</div>
+          <div class="suggestion-sub">Multi-agent AI systems</div>
+        </div>
+        <div class="suggestion" onclick="useSuggestion('Explain how MCP servers enable cross-model communication')">
+          <div class="suggestion-title">How do MCP servers work?</div>
+          <div class="suggestion-sub">Cross-model communication</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="file-preview" id="filePreview"></div>
+      <div class="input-box">
+        <textarea id="msgInput" placeholder="Ask anything, or attach a file..." rows="1"
+          onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+        <div class="input-actions">
+          <button class="icon-btn" onclick="document.getElementById('fileInput').click()" title="Attach file">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="input-hint">
+        Press Enter to send · Shift+Enter for new line
+        <div class="upload-types">
+          <span class="type-tag">PDF</span>
+          <span class="type-tag">Images</span>
+          <span class="type-tag">Audio (Pro)</span>
+          <span class="type-tag">Video (Pro)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept=".pdf,image/*,audio/*,video/*" onchange="handleFileSelect(event)">
+
+<!-- UPGRADE MODAL -->
+<div class="modal-overlay hidden" id="upgradeModal">
+  <div class="modal">
+    <h2>⚡ Upgrade to Pro</h2>
+    <p>Unlock audio & video file analysis, unlimited history, and priority responses for just <strong>$20/month</strong>.</p>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="hideModal('upgradeModal')">Maybe later</button>
+      <a href="{{ url_for('auth.upgrade') }}" class="modal-btn confirm" style="text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center">Upgrade now →</a>
+    </div>
+  </div>
+</div>
+
+<!-- HISTORY MODAL -->
+<div class="modal-overlay hidden" id="historyModal">
+  <div class="modal" style="max-width:560px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+      <h2 style="margin:0">Chat history</h2>
+      <button onclick="hideModal('historyModal')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.2rem">✕</button>
+    </div>
+    <div id="historyModalList" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem"></div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+let currentConvId = null;
+let pendingFile = null;
+let isStreaming = false;
+
+// AUTO-RESIZE TEXTAREA
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,200)+'px';
+}
+
+// KEY HANDLER
+function handleKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}
+}
+
+// TOAST
+function showToast(msg,dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'),dur);
+}
+
+// MODALS
+function showUpgradeModal(){document.getElementById('upgradeModal').classList.remove('hidden')}
+function hideModal(id){document.getElementById(id).classList.add('hidden')}
+
+// SIDEBAR
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+
+// FILE SELECT
+async function handleFileSelect(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const fd=new FormData();fd.append('file',file);
+  showToast('Uploading file...');
+  try{
+    const r=await fetch('/upload',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.upgrade){showUpgradeModal();return}
+    if(!d.success){showToast('Upload failed: '+d.error);return}
+    pendingFile={type:d.file_type,name:d.file_name,context:d.context};
+    const preview=document.getElementById('filePreview');
+    const icons={pdf:'📄',image:'🖼️',audio:'🎵',video:'🎬'};
+    preview.innerHTML=`<div class="file-preview-chip">${icons[d.file_type]||'📎'} ${d.file_name} <button class="remove" onclick="clearFile()">✕</button></div>`;
+    showToast('File ready: '+d.file_name);
+  }catch(ex){showToast('Upload error')}
+  e.target.value='';
+}
+
+function clearFile(){
+  pendingFile=null;
+  document.getElementById('filePreview').innerHTML='';
+}
+
+// SUGGESTION
+function useSuggestion(text){
+  document.getElementById('msgInput').value=text;
+  sendMessage();
+}
+
+// NEW CHAT
+async function newChat(){
+  if(isStreaming)return;
+  const r=await fetch('/chat/new',{method:'POST'});
+  const d=await r.json();
+  currentConvId=d.id;
+  document.getElementById('convTitle').textContent='New conversation';
+  document.getElementById('messagesArea').innerHTML=`<div class="welcome" id="welcomeScreen"><div class="welcome-logo">Nexus<span>.</span>AI</div><p class="welcome-sub">Start a new conversation.</p></div>`;
+  clearFile();
+  addHistoryItem(d.id,'New Chat');
+}
+
+// ADD HISTORY ITEM
+function addHistoryItem(id,title){
+  const list=document.getElementById('historyList');
+  const el=document.createElement('div');
+  el.className='history-item';el.id='conv-'+id;
+  el.onclick=()=>loadConv(id);
+  el.innerHTML=`<span class="history-title">${title}</span><button class="history-del" onclick="delConv(event,${id})" title="Delete">✕</button>`;
+  list.prepend(el);
+}
+
+// LOAD CONVERSATION
+async function loadConv(id){
+  if(isStreaming)return;
+  document.querySelectorAll('.history-item').forEach(el=>el.classList.remove('active'));
+  const item=document.getElementById('conv-'+id);
+  if(item)item.classList.add('active');
+  const r=await fetch('/chat/'+id+'/messages');
+  const d=await r.json();
+  currentConvId=id;
+  document.getElementById('convTitle').textContent=d.title;
+  const area=document.getElementById('messagesArea');
+  area.innerHTML='';
+  d.messages.forEach(m=>appendMessage(m.role,m.content,m.file_type,m.file_name));
+  area.scrollTop=area.scrollHeight;
+}
+
+// DELETE CONVERSATION
+async function delConv(e,id){
+  e.stopPropagation();
+  await fetch('/chat/'+id+'/delete',{method:'DELETE'});
+  const el=document.getElementById('conv-'+id);
+  if(el)el.remove();
+  if(currentConvId===id){
+    currentConvId=null;
+    document.getElementById('convTitle').textContent='New conversation';
+    document.getElementById('messagesArea').innerHTML='';
+  }
+  showToast('Conversation deleted');
+}
+
+// APPEND MESSAGE
+function appendMessage(role,content,fileType,fileName){
+  const area=document.getElementById('messagesArea');
+  const ws=document.getElementById('welcomeScreen');
+  if(ws)ws.remove();
+  const wrap=document.createElement('div');
+  wrap.className='msg-wrap '+(role==='user'?'user':'ai');
+  const initials=role==='user'?'{{ current_user.username[0].upper() }}':'N';
+  let fileChip='';
+  if(fileType&&fileName){
+    const icons={pdf:'📄',image:'🖼️',audio:'🎵',video:'🎬'};
+    fileChip=`<div class="file-chip">${icons[fileType]||'📎'} ${fileName}</div>`;
+  }
+  wrap.innerHTML=`
+    <div class="avatar ${role==='user'?'user':'ai'}">${initials}</div>
+    <div class="msg-content">
+      <div class="msg-name">${role==='user'?'You':'Nexus AI'}</div>
+      ${fileChip}
+      <div class="msg-bubble" id="bubble-${Date.now()}">${renderMd(content)}</div>
+    </div>`;
+  area.appendChild(wrap);
+  area.scrollTop=area.scrollHeight;
+  return wrap.querySelector('.msg-bubble');
+}
+
+// SIMPLE MARKDOWN RENDER
+function renderMd(text){
+  let t=text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/```(\w+)?\n?([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^# (.+)$/gm,'<h1>$1</h1>')
+    .replace(/^\- (.+)$/gm,'<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs,'<ul>$1</ul>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+  return '<p>'+t+'</p>';
+}
+
+// SEND MESSAGE
+async function sendMessage(){
+  const input=document.getElementById('msgInput');
+  const text=input.value.trim();
+  if((!text&&!pendingFile)||isStreaming)return;
+  if(!currentConvId){
+    const r=await fetch('/chat/new',{method:'POST'});
+    const d=await r.json();
+    currentConvId=d.id;
+    addHistoryItem(d.id,'New Chat');
+  }
+  const msgText=text||'Analyse this file';
+  input.value='';autoResize(input);
+  const fileInfo={...pendingFile};
+  clearFile();
+  appendMessage('user',msgText,fileInfo.type,fileInfo.name);
+  const area=document.getElementById('messagesArea');
+  const typingWrap=document.createElement('div');
+  typingWrap.className='msg-wrap ai';
+  typingWrap.innerHTML=`<div class="avatar ai">N</div><div class="msg-content"><div class="msg-name">Nexus AI</div><div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div></div>`;
+  area.appendChild(typingWrap);area.scrollTop=area.scrollHeight;
+  isStreaming=true;
+  document.getElementById('sendBtn').disabled=true;
+  const body={message:msgText};
+  if(fileInfo.type){body.file_type=fileInfo.type;body.file_name=fileInfo.name;body.file_context=fileInfo.context}
+  try{
+    const resp=await fetch('/chat/'+currentConvId+'/send',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    const reader=resp.body.getReader();const dec=new TextDecoder();
+    let bubble=null;let fullText='';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      const chunk=dec.decode(value);
+      const lines=chunk.split('\n');
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        try{
+          const d=JSON.parse(line.slice(5));
+          if(d.token){
+            if(!bubble){
+              typingWrap.remove();
+              const newBubble=appendMessage('assistant','','','');
+              bubble=newBubble;fullText='';
+            }
+            fullText+=d.token;
+            bubble.innerHTML=renderMd(fullText);
+            area.scrollTop=area.scrollHeight;
+          }
+          if(d.done&&d.title){
+            document.getElementById('convTitle').textContent=d.title;
+            const item=document.getElementById('conv-'+currentConvId);
+            if(item){const tt=item.querySelector('.history-title');if(tt)tt.textContent=d.title}
+          }
+        }catch(_){}
+      }
+    }
+  }catch(ex){typingWrap.remove();appendMessage('assistant','Sorry, something went wrong. Please try again.','','')}
+  isStreaming=false;document.getElementById('sendBtn').disabled=false;
+}
+
+// HISTORY MODAL
+async function showHistory(){
+  const r=await fetch('/history');
+  const data=await r.json();
+  const list=document.getElementById('historyModalList');
+  if(!data.length){list.innerHTML='<p style="color:var(--muted2);font-size:.9rem">No conversations yet.</p>';
+  }else{
+    list.innerHTML=data.map(c=>`
+      <div onclick="loadConv(${c.id});hideModal('historyModal')" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem">
+        <div>
+          <div style="font-size:.85rem;font-weight:500">${c.title}</div>
+          <div style="font-size:.75rem;color:var(--muted2)">${c.message_count} messages · ${new Date(c.updated_at).toLocaleDateString()}</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>`).join('')
+  }
+  document.getElementById('historyModal').classList.remove('hidden');
+}
+
+// RESPONSIVE
+if(window.innerWidth<=700){document.getElementById('menuBtn').style.display='flex'}
+window.addEventListener('resize',()=>{
+  document.getElementById('menuBtn').style.display=window.innerWidth<=700?'flex':'none';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>{% if mode=='login' %}Sign In{% else %}Create Account{% endif %} – Nexus AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#08090a;--surface:#0f1012;--surface2:#16181c;--border:#ffffff14;--accent:#6c63ff;--text:#f0f0f0;--muted:#888;--err:#ef4444;--ok:#10b981}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,#6c63ff18,transparent);pointer-events:none}
+.wrap{position:relative;z-index:1;width:100%;max-width:420px}
+.logo-link{display:flex;justify-content:center;margin-bottom:2.5rem;text-decoration:none}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;color:var(--text)}
+.logo span{color:var(--accent)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2.5rem}
+h1{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.4rem}
+.subtitle{color:var(--muted);font-size:.9rem;margin-bottom:2rem}
+.field{margin-bottom:1.25rem}
+label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:.5rem;font-weight:500}
+input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input:focus{border-color:var(--accent)}
+input::placeholder{color:#444}
+.btn-submit{width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:500;cursor:pointer;transition:all .2s;margin-top:.5rem}
+.btn-submit:hover{background:#7c74ff;transform:translateY(-1px)}
+.btn-submit:active{transform:scale(.98)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.divider{text-align:center;margin:1.5rem 0;color:var(--muted);font-size:.8rem;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:42%;height:1px;background:var(--border)}
+.divider::before{left:0}.divider::after{right:0}
+.switch{text-align:center;margin-top:1.5rem;font-size:.9rem;color:var(--muted)}
+.switch a{color:var(--accent);text-decoration:none;font-weight:500}
+.switch a:hover{text-decoration:underline}
+.error-msg{background:#ef444412;border:1px solid #ef444430;border-radius:8px;padding:.75rem 1rem;color:var(--err);font-size:.85rem;margin-bottom:1rem;display:none}
+.success-msg{background:#10b98112;border:1px solid #10b98130;border-radius:8px;padding:.75rem 1rem;color:var(--ok);font-size:.85rem;margin-bottom:1rem;display:none}
+.back{position:fixed;top:1.5rem;left:1.5rem;color:var(--muted);text-decoration:none;font-size:.9rem;display:flex;align-items:center;gap:.4rem;transition:color .2s}
+.back:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<a href="{{ url_for('auth.index') }}" class="back">← Back</a>
+<div class="wrap">
+  <a href="{{ url_for('auth.index') }}" class="logo-link">
+    <div class="logo">Nexus<span>.</span>AI</div>
+  </a>
+  <div class="card">
+    <h1>{% if mode=='login' %}Welcome back{% else %}Create account{% endif %}</h1>
+    <p class="subtitle">{% if mode=='login' %}Sign in to continue your research{% else %}Start researching smarter today{% endif %}</p>
+
+    <div class="error-msg" id="errMsg"></div>
+    <div class="success-msg" id="okMsg"></div>
+
+    {% if mode=='register' %}
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="your_name" autocomplete="username">
+    </div>
+    {% endif %}
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="{% if mode=='login' %}current-password{% else %}new-password{% endif %}">
+    </div>
+    <button class="btn-submit" id="submitBtn" onclick="handleSubmit()">
+      {% if mode=='login' %}Sign in{% else %}Create account{% endif %}
+    </button>
+
+    <div class="switch">
+      {% if mode=='login' %}
+        Don't have an account? <a href="{{ url_for('auth.register') }}">Sign up free</a>
+      {% else %}
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+const MODE = '{{ mode }}';
+function showErr(msg){
+  const el=document.getElementById('errMsg');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('okMsg').style.display='none';
+}
+function showOk(msg){
+  const el=document.getElementById('okMsg');
+  el.textContent=msg;el.style.display='block';
+  document.getElementById('errMsg').style.display='none';
+}
+async function handleSubmit(){
+  const btn=document.getElementById('submitBtn');
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+  if(!email||!password){showErr('Please fill in all fields.');return;}
+  const body={email,password};
+  if(MODE==='register'){
+    const u=document.getElementById('username').value.trim();
+    if(!u){showErr('Please enter a username.');return;}
+    body.username=u;
+  }
+  btn.disabled=true;btn.textContent='Please wait...';
+  const url=MODE==='login'?'/login':'/register';
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(d.success){showOk('Success! Redirecting...');setTimeout(()=>{window.location.href=d.redirect},600)}
+    else{showErr(d.error||'Something went wrong.');btn.disabled=false;btn.textContent=MODE==='login'?'Sign in':'Create account'}
+  }catch(e){showErr('Network error. Try again.');btn.disabled=false;btn.textContent=MODE==='login'?'Sign in':'Create account'}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter')handleSubmit()});
+</script>
+</body>
+</html>
